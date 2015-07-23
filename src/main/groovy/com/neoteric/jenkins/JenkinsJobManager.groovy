@@ -24,6 +24,7 @@ class JenkinsJobManager {
 	String templateHotfixSuffix = "hotfix"
 	String templateReleaseSuffix = "release"
 
+	def branchSuffixMatch = []
 	JenkinsApi jenkinsApi
 	GitApi gitApi
 
