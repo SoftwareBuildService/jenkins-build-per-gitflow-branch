@@ -24,10 +24,6 @@ class JenkinsJobManager {
 	String templateHotfixSuffix = "hotfix"
 	String templateReleaseSuffix = "release"
 
-	def branchSuffixMatch = [(templateFeatureSuffix): featureSuffix,
-							 (templateHotfixSuffix) : hotfixSuffix,
-							 (templateReleaseSuffix): releaseSuffix]
-
 	JenkinsApi jenkinsApi
 	GitApi gitApi
 
@@ -35,6 +31,9 @@ class JenkinsJobManager {
 		for (property in props) {
 			this."${property.key}" = property.value
 		}
+		this.branchSuffixMatch = [(templateFeatureSuffix): featureSuffix,
+								 (templateHotfixSuffix) : hotfixSuffix,
+								 (templateReleaseSuffix): releaseSuffix]
 		initJenkinsApi()
 		initGitApi()
 	}
