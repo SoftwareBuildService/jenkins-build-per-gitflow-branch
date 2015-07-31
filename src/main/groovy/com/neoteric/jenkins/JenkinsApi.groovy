@@ -88,20 +88,25 @@ class JenkinsApi {
 		return processConfig(config, missingJob.branchName, gitUrl)
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl) {
+	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="") {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
 		
 		// update GIT url
 		root.scm.userRemoteConfigs."hudson.plugins.git.UserRemoteConfig".url[0].value = "$gitUrl"
-		
+		if (root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0]!=null) {
+			root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0].value = "$branchName"
+		}
+
 		//update Sonar
 		if (root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0] != null) {
 			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName"
 		}
 		
-		
+		if(!featureName.empty){
+			root.buildWrappers.hudson.plugins.release.ReleaseWrapper.parameterDefinitions.defaultValue[0].value="$featureName"
+		}
 		//remove template build variable
 		Node startOnCreateParam = findStartOnCreateParameter(root)
 		if (startOnCreateParam) {
