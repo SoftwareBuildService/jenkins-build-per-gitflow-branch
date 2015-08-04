@@ -16,6 +16,7 @@ class JenkinsApi {
 	
 	
 	final String SHOULD_START_PARAM_NAME = "startOnCreate"
+	final String FEATURE_NAME_PARAM_NAME = "featureName"
 	String jenkinsServerUrl
 	RESTClient restClient
 	HttpRequestInterceptor requestInterceptor
@@ -85,7 +86,8 @@ class JenkinsApi {
 	String configForMissingJob(ConcreteJob missingJob, String gitUrl) {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
-		return processConfig(config, missingJob.branchName, gitUrl)
+		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName)
+        return pconfig
 	}
 
 	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="") {
@@ -95,7 +97,8 @@ class JenkinsApi {
 		
 		// update GIT url
 		root.scm.userRemoteConfigs."hudson.plugins.git.UserRemoteConfig".url[0].value = "$gitUrl"
-		if (root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0]!=null) {
+		println branchName
+		if (root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0]) {
 			root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0].value = "$branchName"
 		}
 
@@ -105,8 +108,12 @@ class JenkinsApi {
 		}
 		
 		if(!featureName.empty){
-			root.buildWrappers.hudson.plugins.release.ReleaseWrapper.parameterDefinitions.defaultValue[0].value="$featureName"
+			def featureNameNode = findfeatureNameParameter(root)
+			if(featureNameNode){
+				featureNameNode.defaultValue[0].value="$featureName"
+			}
 		}
+		
 		//remove template build variable
 		Node startOnCreateParam = findStartOnCreateParameter(root)
 		if (startOnCreateParam) {
@@ -147,6 +154,12 @@ class JenkinsApi {
 		return startOnCreateParam.defaultValue[0]?.text().toBoolean()
 	}
 	
+	Node findfeatureNameParameter(Node root) {
+		return root.buildWrappers."hudson.plugins.release.ReleaseWrapper".parameterDefinitions."hudson.model.StringParameterDefinition".find {
+			it.name[0].text() == FEATURE_NAME_PARAM_NAME
+		}
+	}
+
 	Node findStartOnCreateParameter(Node root) {
 		return root.properties."hudson.model.ParametersDefinitionProperty".parameterDefinitions."hudson.model.BooleanParameterDefinition".find {
 			it.name[0].text() == SHOULD_START_PARAM_NAME

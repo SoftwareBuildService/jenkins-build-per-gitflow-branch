@@ -96,11 +96,11 @@ class JenkinsJobManager {
 			branchesWithCorrespondingTemplate.each { branchToProcess ->
 				println "-----> Processing branch: $branchToProcess"
 				List<ConcreteJob> expectedJobsPerBranch = templateJobsByBranch[templateBranchToProcess].collect { TemplateJob templateJob ->
-					templateJob.concreteJobForBranch(jobPrefix, branchToProcess)
+					templateJob.concreteJobForBranch(jobPrefix, branchToProcess, branchToProcess.replaceAll(branchSuffixMatch[templateBranchToProcess], ""))
 				}
 				println "-------> Expected jobs:"
 				expectedJobsPerBranch.each { println "           $it" }
-				List<String> jobNamesPerBranch = jobNames.findAll{ it.endsWith(branchToProcess) }
+				List<String> jobNamesPerBranch = jobNames.findAll{ it.endsWith(branchToProcess.replaceAll('/', '_')) }
 				println "-------> Job Names per branch:"
 				jobNamesPerBranch.each { println "           $it" }
 				List<ConcreteJob> missingJobsPerBranch = expectedJobsPerBranch.findAll { expectedJob ->
@@ -110,10 +110,11 @@ class JenkinsJobManager {
 				missingJobsPerBranch.each { println "           $it" }
 				missingJobs.addAll(missingJobsPerBranch)
 			}
-
-			List<String> deleteCandidates = jobNames.findAll {  it.contains(branchSuffixMatch[templateBranchToProcess]) }
+			
+			
+			List<String> deleteCandidates = jobNames.findAll {  it.contains(branchSuffixMatch[templateBranchToProcess]) || it.contains(branchSuffixMatch[templateBranchToProcess].replaceAll("/","_")) }
 			List<String> jobsToDeletePerBranch = deleteCandidates.findAll { candidate ->
-				!branchesWithCorrespondingTemplate.any { candidate.endsWith(it) }
+				!branchesWithCorrespondingTemplate.any { candidate.endsWith(it.replaceAll("/","_")) }
 			}
 
 			println "-----> Jobs to delete:"
