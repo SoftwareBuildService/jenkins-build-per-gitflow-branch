@@ -51,7 +51,7 @@ garbage line that should be ignored
         """.trim()
 
         GitApi gitApi = new GitApiMockedResult(mockResult: mockResult)
-        List<String> branchNames = gitApi.branchNames
+        List<String> branchNames = gitApi.getBranchNames()
 		
         assert ["master", "release_1.0rc1", "ted/feature_branch"] == branchNames.sort()
     }
