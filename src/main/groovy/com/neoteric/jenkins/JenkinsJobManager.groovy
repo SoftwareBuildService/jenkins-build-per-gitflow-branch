@@ -4,7 +4,7 @@ import java.util.regex.Pattern
 
 class JenkinsJobManager {
 
-	String templateJobPrefix
+	String templateJob
 	String jobPrefix
 	String gitUrl
 	String jenkinsUrl
@@ -50,7 +50,7 @@ class JenkinsJobManager {
 
 		List<TemplateJob> templateJobs = findRequiredTemplateJobs(allJobNames)
 		println "-------------------------------------"
-		println "Template Jobs:" + templateJobs
+		println "Template Job:" + templateJobs
 
 		List<String> jobsWithJobPrefix = allJobNames.findAll { jobName ->
 			jobName.startsWith(jobPrefix + '-')
@@ -64,19 +64,13 @@ class JenkinsJobManager {
 	}
 
 	public List<TemplateJob> findRequiredTemplateJobs(List<String> allJobNames) {
-		String regex = /^($templateJobPrefix)-(.*)-($templateFeatureSuffix|$templateReleaseSuffix|$templateHotfixSuffix)$/
-
-		List<TemplateJob> templateJobs = allJobNames.findResults { String jobName ->
-
-			TemplateJob templateJob = null
-			jobName.find(regex) {full, templateName, baseJobName, branchName ->
-				templateJob = new TemplateJob(jobName: full, baseJobName: baseJobName, templateBranchName: branchName)
-			}
-			return templateJob
-		}
-
-		assert templateJobs?.size() > 0, "Unable to find any jobs matching template regex: $regex\nYou need at least one job to match the templateJobPrefix and templateBranchName (feature, hotfix, release) suffix arguments"
-		return templateJobs
+		TemplateJob templateJobRelease
+		TemplateJob templateJobHotfix
+		TemplateJob templateJobFeature =  templateJobRelease = templateJobHotfix = null
+  		templateJobFeature = new TemplateJob(jobName: templateJob, baseJobName: templateJob.replace("-develop", ""), templateBranchName: templateFeatureSuffix)
+    	templateJobRelease = new TemplateJob(jobName: templateJob, baseJobName: templateJob.replace("-develop", ""), templateBranchName: templateReleaseSuffix)
+		templateJobHotfix = new TemplateJob(jobName: templateJob, baseJobName: templateJob.replace("-develop", ""), templateBranchName: templateHotfixSuffix)
+		[ templateJobFeature, templateJobRelease, templateJobHotfix ]  
 	}
 
 	public void syncJobs(List<String> allBranchNames, List<String> jobNames, List<TemplateJob> templateJobs) {
@@ -155,11 +149,7 @@ class JenkinsJobManager {
 	}
 
 	GitApi initGitApi() {
-		if (!gitApi) {
-			assert gitUrl != null
-			this.gitApi = new GitApi(gitUrl: gitUrl)
-		}
-
+		this.gitApi = new GitApi(gitUrl: gitUrl)
 		return this.gitApi
 	}
 }

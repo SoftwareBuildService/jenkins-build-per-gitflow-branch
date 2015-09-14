@@ -10,7 +10,7 @@ class Main {
             j: [longOpt: 'jenkins-url', required: true, args: 1, argName: 'jenkinsUrl', description: "Jenkins URL - gradle flag -DjenkinsUrl=<jenkinsUrl>"],
             u: [longOpt: 'git-url',  required: true, args: 1, argName: 'gitUrl', description: "Git Repository URL - gradle flag -DgitUrl=<gitUrl>"],
             p: [longOpt: 'job-prefix', required: true, args: 1, argName: 'jobPrefix', description: "Job Prefix, - gradle flag -DjobPrefix=<jobPrefix>"],
-            a: [longOpt: 'template-job-prefix', required: true, args: 1, argName: 'templateJobPrefix', description: "Template Job Prefix, - gradle flag -DtemplatejobPrefix=<templateJobPrefix>"],
+            a: [longOpt: 'template-job', required: true, args: 1, argName: 'templateJob', description: "Name of the Template Job, - gradle flag -DtemplateJob=<templateJob>"],
             d: [longOpt: 'dry-run', required: false, args: 0, argName: 'dryRun', description:  "Dry run, don't actually modify, create, or delete any jobs, just print out what would happen - gradle flag: -DdryRun=true"],
             i: [longOpt: 'create-job-in-view', required: false, args: 1, argName: 'createJobInView', description: "Create new job in specified view. When using this suppress view creation as well (-DnoViews=true) - gradle flag -DcreateInView=nestedView/view"],
             k: [longOpt: 'no-delete', required: false, args: 0, argName: 'noDelete', description: "Do not delete (keep) branches and views - gradle flag -DnoDelete=true"],

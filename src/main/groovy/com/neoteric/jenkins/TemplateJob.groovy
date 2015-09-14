@@ -17,6 +17,6 @@ class TemplateJob {
     }
     
     ConcreteJob concreteJobForBranch(String jobPrefix, String branchName, String featureName="") {
-        ConcreteJob concreteJob = new ConcreteJob(templateJob: this, branchName: branchName, jobName: jobPrefix + '-' + jobNameForBranch(branchName), featureName: featureName )
+        ConcreteJob concreteJob = new ConcreteJob(templateJob: this, branchName: branchName, jobName: jobNameForBranch(branchName), featureName: featureName )
     }
 }
