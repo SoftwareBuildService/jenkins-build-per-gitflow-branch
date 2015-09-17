@@ -76,8 +76,6 @@ Notes on configuring your template:
 - Git repository URL is going to be replaced by the script (with the project Git URL set in sync job parameters)
 - Branch to build is going to be determined and set by the script
 
-###### Optional release build
-
 [Jenkins Build Per Branch]:http://entagen.github.io/jenkins-build-per-branch/
 [Jenkins Build Per Gitflow Branch]:https://github.com/neoteric-eu/jenkins-build-per-gitflow-branch
 [GitHub flow]:http://scottchacon.com/2011/08/31/github-flow.html

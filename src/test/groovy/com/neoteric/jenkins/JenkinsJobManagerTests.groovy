@@ -22,7 +22,7 @@ class JenkinsJobManagerTests {
 	@Test
 	public void testFindTemplateJobs() {
 		JenkinsJobManager jenkinsJobManager =
-				new JenkinsJobManager(templateJobPrefix: "template", jobPrefix: "myproj", jenkinsUrl: "http://dummy.com", gitUrl: "git@dummy.com:company/myproj.git")
+				new JenkinsJobManager(templateJob: "template-foo-feature", jobPrefix: "myproj", jenkinsUrl: "http://dummy.com", gitUrl: "git@dummy.com:company/myproj.git")
 
 		List<String> allJobNames = [
 			"myproj-foo-master",
@@ -40,7 +40,7 @@ class JenkinsJobManagerTests {
 
 	@Test
 	public void testFindTemplateJobs_noMatchingJobsThrowsException() {
-		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(templateJobPrefix: "template", jobPrefix: "myproj", jenkinsUrl: "http://dummy.com", gitUrl: "git@dummy.com:company/myproj.git")
+		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(templateJob: "template", jobPrefix: "myproj", jenkinsUrl: "http://dummy.com", gitUrl: "git@dummy.com:company/myproj.git")
 		List<String> allJobNames = [
 			"otherproj-foo-master",
 			"myproj-foo-featurebranch"
@@ -53,11 +53,11 @@ class JenkinsJobManagerTests {
 
 	@Test
 	public void testGetTemplateJobs() {
-		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(jobPrefix: "NeoDocs", templateJobPrefix: "NeoDocsTemplates", gitUrl: "git@dummy.com:company/myproj.git", jenkinsUrl: "http://dummy.com")
+		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(jobPrefix: "NeoDocs", templateJob: "NeoDocsTemplates-build-feature", gitUrl: "git@dummy.com:company/myproj.git", jenkinsUrl: "http://dummy.com")
 
 		List<String> allJobNames = [
 			"NeoDocs-build-feature",
-			"NeoDocsTemplates-build-feature",
+			"NeoDocsTemplates-build",
 			"NeoDocsTemplates-build-featured",
 			"NeoDocsTemplates-deploy-feature",
 			"NeoDocsTemplates-build-hotfix"

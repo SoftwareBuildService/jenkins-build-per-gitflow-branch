@@ -9,6 +9,7 @@ class TemplateJob {
     String jobName
     String baseJobName
     String templateBranchName
+	String jobCategory
 
     String jobNameForBranch(String branchName) {
         // git branches often have a forward slash in them, but they make jenkins cranky, turn it into an underscore

@@ -86,11 +86,11 @@ class JenkinsApi {
 	String configForMissingJob(ConcreteJob missingJob, String gitUrl) {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
-		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName)
+		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory)
         return pconfig
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="") {
+	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature") {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
@@ -107,7 +107,7 @@ class JenkinsApi {
 			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName"
 		}
 		
-		if(!featureName.empty){
+		if(!featureName.empty && jobCategory=="feature" ){
 			def featureNameNode = findfeatureNameParameter(root)
 			if(featureNameNode){
 				featureNameNode.defaultValue[0].value="$featureName"
