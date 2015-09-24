@@ -75,6 +75,7 @@ The idea of this script is to be able to handle a template version for all Git F
 Notes on configuring your template:
 - Git repository URL is going to be replaced by the script (with the project Git URL set in sync job parameters)
 - Branch to build is going to be determined and set by the script
+- If you want use the jgitflow plugin it is recomended to set the option *Check out to specific local branch* beacause jgitflow cant work with checkouts on specific revision.
 
 [Jenkins Build Per Branch]:http://entagen.github.io/jenkins-build-per-branch/
 [Jenkins Build Per Gitflow Branch]:https://github.com/neoteric-eu/jenkins-build-per-gitflow-branch
