@@ -95,16 +95,13 @@ class JenkinsApi {
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
 		
-		// update GIT url
-		root.scm.userRemoteConfigs."hudson.plugins.git.UserRemoteConfig".url[0].value = "$gitUrl"
-		println branchName
 		if (root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0]) {
 			root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0].value = "$branchName"
 		}
 
 		//update Sonar
 		if (root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0] != null) {
-			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName"
+			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName".replace("/","_")
 		}
 		
 		if(!featureName.empty && jobCategory=="feature" ){
@@ -119,7 +116,15 @@ class JenkinsApi {
 		if (startOnCreateParam) {
 			startOnCreateParam.parent().remove(startOnCreateParam)
 		}
-		
+
+		// modify release target
+		Node mavenReleaseTargets = findMavenReleaseTarget(root)
+		if(mavenReleaseTargets){
+			def mavenReleaseTargetsValue=mavenReleaseTargets.text()
+			println mavenReleaseTargetsValue
+			mavenReleaseTargetsValue.replace("feature-finish", "$jobCategory-finish1")
+			mavenReleaseTargets.setValue(mavenReleaseTargetsValue.replace("feature-finish", "$jobCategory-finish"))
+		}
 		//check if it was the only parameter - if so, remove the enclosing tag, so the project won't be seen as build with parameters
 		def propertiesNode = root.properties
 		def parameterDefinitionsProperty = propertiesNode."hudson.model.ParametersDefinitionProperty".parameterDefinitions[0]
@@ -160,6 +165,12 @@ class JenkinsApi {
 		}
 	}
 
+	Node findMavenReleaseTarget(Node root) {
+		if(root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets!=null)
+			return root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets.get(0)
+		return null
+	}
+	
 	Node findStartOnCreateParameter(Node root) {
 		return root.properties."hudson.model.ParametersDefinitionProperty".parameterDefinitions."hudson.model.BooleanParameterDefinition".find {
 			it.name[0].text() == SHOULD_START_PARAM_NAME
