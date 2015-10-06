@@ -15,7 +15,8 @@ class JenkinsJobManager {
 	Boolean dryRun = false
 	Boolean noDelete = false
 	Boolean startOnCreate = false
-
+	Boolean noFeatureDeploy = false
+	
 	String featureSuffix = "feature-"
 	String hotfixSuffix = "hotfix-"
 	String releaseSuffix = "release-"
@@ -119,7 +120,7 @@ class JenkinsJobManager {
 		if (missingJobs) {
 			for(ConcreteJob missingJob in missingJobs) {
 				println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
-				jenkinsApi.cloneJobForBranch(jobPrefix, missingJob, createJobInView, gitUrl)
+				jenkinsApi.cloneJobForBranch(jobPrefix, missingJob, createJobInView, gitUrl, noFeatureDeploy)
 				jenkinsApi.startJob(missingJob)
 			}
 		}

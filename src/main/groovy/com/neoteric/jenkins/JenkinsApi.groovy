@@ -56,10 +56,10 @@ class JenkinsApi {
 		response.data.text
 	}
 
-	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl) {
+	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy) {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
-		String missingJobConfig = configForMissingJob(missingJob, gitUrl)
+		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy)
 		TemplateJob templateJob = missingJob.templateJob
 
 		//Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
@@ -83,14 +83,14 @@ class JenkinsApi {
 		elements.join();
 	}
 
-	String configForMissingJob(ConcreteJob missingJob, String gitUrl) {
+	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy) {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
-		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory)
+		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy)
         return pconfig
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature") {
+	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false) {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
@@ -119,12 +119,17 @@ class JenkinsApi {
 
 		// modify release target
 		Node mavenReleaseTargets = findMavenReleaseTarget(root)
-		if(mavenReleaseTargets){
+		if(mavenReleaseTargets!=null){
 			def mavenReleaseTargetsValue=mavenReleaseTargets.text()
+			def newMavenReleaseTargetsValue=mavenReleaseTargetsValue.replace("feature-finish", "$jobCategory-finish")
 			println mavenReleaseTargetsValue
-			mavenReleaseTargetsValue.replace("feature-finish", "$jobCategory-finish1")
-			mavenReleaseTargets.setValue(mavenReleaseTargetsValue.replace("feature-finish", "$jobCategory-finish"))
+			if(noFeatureDeploy && jobCategory=="feature"){
+				if(!mavenReleaseTargetsValue.contains("-DnoDeploy=true"))
+					newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.concat("-DnoDeploy=true")
+			}
+			mavenReleaseTargets.setValue(newMavenReleaseTargetsValue)
 		}
+		
 		//check if it was the only parameter - if so, remove the enclosing tag, so the project won't be seen as build with parameters
 		def propertiesNode = root.properties
 		def parameterDefinitionsProperty = propertiesNode."hudson.model.ParametersDefinitionProperty".parameterDefinitions[0]
@@ -134,6 +139,19 @@ class JenkinsApi {
 			new Node(root, 'properties')
 		}
 		
+		// disable deployment of feature builds if necessary
+		println noFeatureDeploy 
+		println jobCategory
+		if(noFeatureDeploy && jobCategory=="feature"){
+			Node mavenGoals=findMavenGoals(root)
+			println mavenGoals
+			if(mavenGoals!=null){
+				def mavenGoalsValue=mavenGoals.text()
+				println mavenGoalsValue
+				mavenGoals.setValue(mavenGoalsValue.replace("deploy", "install"))
+			}
+				
+		}
 		
 		def writer = new StringWriter()
 		XmlNodePrinter xmlPrinter = new XmlNodePrinter(new PrintWriter(writer))
@@ -166,8 +184,16 @@ class JenkinsApi {
 	}
 
 	Node findMavenReleaseTarget(Node root) {
-		if(root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets!=null)
-			return root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets.get(0)
+		NodeList mavenTargets=root.buildWrappers."hudson.plugins.release.ReleaseWrapper".postSuccessfulBuildSteps."hudson.tasks.Maven".targets
+		if(mavenTargets && mavenTargets != null)
+			return mavenTargets.get(0)
+		return null
+	}
+	
+	Node findMavenGoals(Node root){
+		NodeList goals=root.goals
+		if(goals && goals != null)
+			return goals.get(0)
 		return null
 	}
 	

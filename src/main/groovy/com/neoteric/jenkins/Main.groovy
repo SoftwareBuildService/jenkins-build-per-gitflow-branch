@@ -17,6 +17,7 @@ class Main {
             fs: [longOpt: 'feature-suffix', required: false, args: 1, argName: 'featureSuffix', description: "-DfeatureSuffix=feature-"],
             rs: [longOpt: 'release-suffix', required: false, args: 1, argName: 'releaseSuffix', description: "-DreleaseSuffix=release-"],
             hs: [longOpt: 'hotfix-suffix', required: false, args: 1, argName: 'hotfixSuffix', description: "-DhotfixSuffix=hotfix-"],
+            ndf: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
             usr: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
             pwd: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"]
     ]
