@@ -125,7 +125,10 @@ class JenkinsApi {
 			println mavenReleaseTargetsValue
 			if(noFeatureDeploy && jobCategory=="feature"){
 				if(!mavenReleaseTargetsValue.contains("-DnoDeploy=true"))
-					newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.concat("-DnoDeploy=true")
+					newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.concat(" -DnoDeploy=true")
+			}
+			if(jobCategory!="feature"){
+				newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.replace('-DfeatureName=${featureName}', "")
 			}
 			mavenReleaseTargets.setValue(newMavenReleaseTargetsValue)
 		}
