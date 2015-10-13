@@ -184,7 +184,7 @@ class JenkinsApi {
 	}
 
 	Node findMavenReleaseTarget(Node root) {
-		NodeList mavenTargets=root.buildWrappers."hudson.plugins.release.ReleaseWrapper".postSuccessfulBuildSteps."hudson.tasks.Maven".targets
+		NodeList mavenTargets=root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets
 		if(mavenTargets && mavenTargets != null)
 			return mavenTargets.get(0)
 		return null
