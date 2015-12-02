@@ -1,6 +1,8 @@
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 
+version=0.1
+
 repositories {
     mavenCentral()
 }
@@ -29,12 +31,23 @@ task syncWithRepo(dependsOn: 'classes', type: JavaExec) {
     main = 'com.neoteric.jenkins.Main'
     classpath = sourceSets.main.runtimeClasspath
     // pass through specified system properties to the call to main
-    ['help', 'jenkinsUrl', 'jenkinsUser', 'jenkinsPassword', 'gitUrl', 'jobPrefix', 'templateJob', 'dryRun', 'createJobInView', 'noDelete', 'featureSuffix', 'releaseSuffix', 'hotfixSuffix', 'noFeatureDeploy'].each {
+    ['help', 'jenkinsUrl', 'jenkinsUser', 'jenkinsPassword', 'gitUrl', 'jobPrefix', 'templateJobPrefix', 'dryRun', 'createJobInView', 'noDelete'].each {
         if (System.getProperty(it)) systemProperty it, System.getProperty(it)
     }
 
 }
 
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Version': version,
+            'Main-Class': 'com.neoteric.jenkins.Main'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '2.9'
 }
