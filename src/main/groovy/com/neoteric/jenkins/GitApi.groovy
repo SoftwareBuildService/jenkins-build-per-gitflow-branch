@@ -31,7 +31,7 @@ class GitApi {
 	// assumes all commands are "safe", if we implement any destructive git commands, we'd want to separate those out for a dry-run
 	public void eachResultLine(String command, Closure closure) {
 		println "executing command: $command"
-		def process = command.execute()
+    	def process = command.execute()
 		def inputStream = process.getInputStream()
 		def gitOutput = ""
 

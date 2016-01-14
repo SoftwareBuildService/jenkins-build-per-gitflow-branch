@@ -100,13 +100,6 @@ class JenkinsApiTests {
 	}
 
 	@Test
-	public void shouldChangeGitUrl() {
-		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
-		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl");
-		assertThat(result).contains("<url>newGitUrl</url>")
-	}
-	
-	@Test
 	public void shouldChangeSonarBranchName() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
 		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl");
