@@ -19,7 +19,8 @@ class Main {
             hs: [longOpt: 'hotfix-suffix', required: false, args: 1, argName: 'hotfixSuffix', description: "-DhotfixSuffix=hotfix-"],
             ndf: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
             usr: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
-            pwd: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"]
+            pwd: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
+            bm: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"]
     ]
 
     public static void main(String[] args) {
