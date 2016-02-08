@@ -107,7 +107,6 @@ class JenkinsApi {
 		if(jobCategory=="feature" ) {
 			def publishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher"[0].parent()
 			publishersNode.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
-			println publishersNode
 		}
 		
 		if(!featureName.empty && jobCategory=="feature" ){
@@ -135,6 +134,9 @@ class JenkinsApi {
 			}
 			if(jobCategory!="feature"){
 				newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.replace('-DfeatureName=${featureName}', "")
+			}else{
+				// Replace ${featureName} with real feature name
+				newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.replace('-DfeatureName=${featureName}', "-DfeatureName=${featureName}")
 			}
 			mavenReleaseTargets.setValue(newMavenReleaseTargetsValue)
 		}
