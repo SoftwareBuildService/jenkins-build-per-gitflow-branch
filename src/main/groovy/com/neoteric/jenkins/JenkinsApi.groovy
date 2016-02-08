@@ -105,7 +105,7 @@ class JenkinsApi {
 		}
 		
 		if(jobCategory=="feature" ) {
-			def pulishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher".parent()
+			def pulishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher"[0].parent()
 			publishersNode.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
 			println publishersNode
 		}
