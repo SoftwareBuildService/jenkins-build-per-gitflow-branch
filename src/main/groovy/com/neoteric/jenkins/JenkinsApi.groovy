@@ -104,6 +104,10 @@ class JenkinsApi {
 			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName".replace("/","_")
 		}
 		
+		if(jobCategory=="feature" ) {
+			root.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
+		}
+		
 		if(!featureName.empty && jobCategory=="feature" ){
 			def featureNameNode = findfeatureNameParameter(root)
 			if(featureNameNode){
@@ -125,7 +129,7 @@ class JenkinsApi {
 			println mavenReleaseTargetsValue
 			if(noFeatureDeploy && jobCategory=="feature"){
 				if(!mavenReleaseTargetsValue.contains("-DnoDeploy=true"))
-					newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.concat(" -DnoDeploy=true")
+					newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.concat("-DnoDeploy=true")
 			}
 			if(jobCategory!="feature"){
 				newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.replace('-DfeatureName=${featureName}', "")
