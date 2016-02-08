@@ -105,7 +105,9 @@ class JenkinsApi {
 		}
 		
 		if(jobCategory=="feature" ) {
-			root.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
+			def pulishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher".parent()
+			publishersNode.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
+			println publishersNode
 		}
 		
 		if(!featureName.empty && jobCategory=="feature" ){
@@ -190,7 +192,7 @@ class JenkinsApi {
 		}
 	}
 
-	Node findMavenReleaseTarget(Node root) {
+    Node findMavenReleaseTarget(Node root) {
 		NodeList mavenTargets=root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets
 		if(mavenTargets && mavenTargets != null)
 			return mavenTargets.get(0)
