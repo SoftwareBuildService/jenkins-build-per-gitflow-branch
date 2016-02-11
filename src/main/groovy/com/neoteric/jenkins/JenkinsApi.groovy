@@ -104,7 +104,7 @@ class JenkinsApi {
 			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName".replace("/","_")
 		}
 		
-		if(jobCategory=="feature" ) {
+		if(jobCategory=="feature" && root.publishers."hudson.plugins.sonar.SonarPublisher"[0] != null) {
 			def publishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher"[0].parent()
 			publishersNode.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
 		}

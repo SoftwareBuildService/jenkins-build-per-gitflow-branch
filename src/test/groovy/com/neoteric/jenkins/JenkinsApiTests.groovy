@@ -102,7 +102,7 @@ class JenkinsApiTests {
 	@Test
 	public void shouldChangeSonarBranchName() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
-		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl");
+		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", "1.0.0", "release");
 		assertThat(result).contains("<branch>release-1.0.0</branch>")
 	}
 	

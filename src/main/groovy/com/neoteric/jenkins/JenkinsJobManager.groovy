@@ -70,12 +70,14 @@ class JenkinsJobManager {
 		TemplateJob templateJobRelease
 		TemplateJob templateJobHotfix
 		TemplateJob templateJobFeature =  templateJobRelease = templateJobHotfix = null
-  		templateJobFeature = new TemplateJob(jobName: templateJob, baseJobName: templateJob.replace("-develop", ""), templateBranchName: templateFeatureSuffix, jobCategory: "feature")
-    	templateJobRelease = new TemplateJob(jobName: templateJob, baseJobName: templateJob.replace("-develop", ""), templateBranchName: templateReleaseSuffix, jobCategory: "release")
-		templateJobHotfix = new TemplateJob(jobName: templateJob, baseJobName: templateJob.replace("-develop", ""), templateBranchName: templateHotfixSuffix, jobCategory: "hotfix")
+
+        String baseJobName = templateJob.replace("-develop", "").replace("-next", "")
+  		templateJobFeature = new TemplateJob(jobName: templateJob, baseJobName: baseJobName, templateBranchName: templateFeatureSuffix, jobCategory: "feature")
+    	templateJobRelease = new TemplateJob(jobName: templateJob, baseJobName: baseJobName, templateBranchName: templateReleaseSuffix, jobCategory: "release")
+		templateJobHotfix = new TemplateJob(jobName: templateJob, baseJobName: baseJobName, templateBranchName: templateHotfixSuffix, jobCategory: "hotfix")
 		if(this.branchModel == "default"){
 			return [ templateJobFeature, templateJobRelease, templateJobHotfix ] 
-		}else{
+		}else if (this.branchModel == "simple"){
 			return [ templateJobFeature, templateJobRelease ]
 		}
 		[] 
