@@ -17,7 +17,7 @@ class Main {
             fs: [longOpt: 'feature-suffix', required: false, args: 1, argName: 'featureSuffix', description: "-DfeatureSuffix=feature-"],
             rs: [longOpt: 'release-suffix', required: false, args: 1, argName: 'releaseSuffix', description: "-DreleaseSuffix=release-"],
             hs: [longOpt: 'hotfix-suffix', required: false, args: 1, argName: 'hotfixSuffix', description: "-DhotfixSuffix=hotfix-"],
-            ndf: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
+            nfd: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
             usr: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
             pwd: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
             bm: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"]
@@ -81,6 +81,10 @@ class Main {
 
     public static formatValue(String key, String value) {
         return (key == "jenkinsPassword") ? "********" : value
+    }
+
+    public static formatValue(String key, Boolean value) {
+        return value
     }
 
     public static Map<String, String> mergeSystemPropertyOptions(OptionAccessor commandLineOptions) {
