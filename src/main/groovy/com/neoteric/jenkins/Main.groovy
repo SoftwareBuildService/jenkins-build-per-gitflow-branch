@@ -14,13 +14,13 @@ class Main {
             d: [longOpt: 'dry-run', required: false, args: 0, argName: 'dryRun', description:  "Dry run, don't actually modify, create, or delete any jobs, just print out what would happen - gradle flag: -DdryRun=true"],
             i: [longOpt: 'create-job-in-view', required: false, args: 1, argName: 'createJobInView', description: "Create new job in specified view. When using this suppress view creation as well (-DnoViews=true) - gradle flag -DcreateInView=nestedView/view"],
             k: [longOpt: 'no-delete', required: false, args: 0, argName: 'noDelete', description: "Do not delete (keep) branches and views - gradle flag -DnoDelete=true"],
-            fs: [longOpt: 'feature-suffix', required: false, args: 1, argName: 'featureSuffix', description: "-DfeatureSuffix=feature-"],
-            rs: [longOpt: 'release-suffix', required: false, args: 1, argName: 'releaseSuffix', description: "-DreleaseSuffix=release-"],
-            hs: [longOpt: 'hotfix-suffix', required: false, args: 1, argName: 'hotfixSuffix', description: "-DhotfixSuffix=hotfix-"],
-            nf: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
-            us: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
-            pw: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
-            bm: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"]
+            f: [longOpt: 'feature-suffix', required: false, args: 1, argName: 'featureSuffix', description: "-DfeatureSuffix=feature-"],
+            r: [longOpt: 'release-suffix', required: false, args: 1, argName: 'releaseSuffix', description: "-DreleaseSuffix=release-"],
+            o: [longOpt: 'hotfix-suffix', required: false, args: 1, argName: 'hotfixSuffix', description: "-DhotfixSuffix=hotfix-"],
+            n: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
+            v: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
+            p: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
+            b: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"]
     ]
 
     public static void main(String[] args) {
