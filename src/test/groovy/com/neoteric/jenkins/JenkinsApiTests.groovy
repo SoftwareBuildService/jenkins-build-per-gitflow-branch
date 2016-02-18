@@ -118,6 +118,18 @@ class JenkinsApiTests {
 		assert true == api.shouldStartJob(CONFIG)
 	}
 
+	@Test
+	public void testIsJobRunning() {
+		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
+		assert true== api.isJobRunning(STATUS_BUILDING)
+	}
+
+	@Test
+	public void testJobISNotRunning() {
+		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
+		assert false == api.isJobRunning(STATUS_NOT_BUILDING)
+	}
+
 	public void withJsonResponse(Map toJson, Closure closure) {
 		JSON json = toJson as JSONObject
 		MockFor mockRESTClient = new MockFor(RESTClient)
@@ -308,5 +320,91 @@ static final String CONFIG_NO_SONAR = '''
     <completeBuild>true</completeBuild>
   </runPostStepsIfResult>
 </maven2-moduleset>'''
+
+static final String STATUS_BUILDING='''
+<mavenModuleSetBuild>
+	<action>
+		<cause>
+		</cause>
+	</action>
+	<action></action>
+	<action></action>
+	<action></action>
+	<action></action>
+	<action>
+	</action>
+	<action></action>
+	<action></action>
+	<building>true</building>
+	<displayName>#7</displayName>
+	<duration>0</duration>
+	<estimatedDuration>-1</estimatedDuration>
+	<executor>
+		<currentExecutable>
+			<number>7</number>
+			<url>https://localhost/jenkins/job/test-job/7/
+			</url>
+		</currentExecutable>
+		<currentWorkUnit></currentWorkUnit>
+		<idle>false</idle>
+		<likelyStuck>false</likelyStuck>
+		<number>0</number>
+		<progress>-1</progress>
+	</executor>
+	<fullDisplayName>test-job #7</fullDisplayName>
+	<id>7</id>
+	<keepLog>false</keepLog>
+	<number>7</number>
+	<queueId>111</queueId>
+	<timestamp>1455783725837</timestamp>
+	<url>https://localhost/jenkins/job/test-job/7/
+	</url>
+	<builtOn></builtOn>
+	<changeSet></changeSet>
+
+</mavenModuleSetBuild>'''
+
+static final String STATUS_NOT_BUILDING='''
+<mavenModuleSetBuild>
+	<action>
+		<cause>
+		</cause>
+	</action>
+	<action></action>
+	<action></action>
+	<action></action>
+	<action></action>
+	<action>
+	</action>
+	<action></action>
+	<action></action>
+	<building>false</building>
+	<displayName>#7</displayName>
+	<duration>0</duration>
+	<estimatedDuration>-1</estimatedDuration>
+	<executor>
+		<currentExecutable>
+			<number>7</number>
+			<url>https://localhost/jenkins/job/test-job/7/
+			</url>
+		</currentExecutable>
+		<currentWorkUnit></currentWorkUnit>
+		<idle>false</idle>
+		<likelyStuck>false</likelyStuck>
+		<number>0</number>
+		<progress>-1</progress>
+	</executor>
+	<fullDisplayName>test-job #7</fullDisplayName>
+	<id>7</id>
+	<keepLog>false</keepLog>
+	<number>7</number>
+	<queueId>111</queueId>
+	<timestamp>1455783725837</timestamp>
+	<url>https://localhost/jenkins/job/test-job/7/
+	</url>
+	<builtOn></builtOn>
+	<changeSet></changeSet>
+
+</mavenModuleSetBuild>'''
 }
 

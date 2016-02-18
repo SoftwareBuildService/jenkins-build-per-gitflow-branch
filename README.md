@@ -44,7 +44,7 @@ The whole idea is to have a single Jenkins job which executes periodically, chec
 - Provide script parameters (explained below) in *Switches* box
 
 
-> **Important note from Entagen site**: This job is potentially destructive as it will delete old feature branch jobs for feature branches that no longer exist. It's strongly recommended that you back up your jenkins jobs directory before running, just in case. Another good alternative would be to put your jobs directory under git version control. Ignore workspace and builds directories and just about everything can be added. Commit periodocally and if something bad happens, revert back to the last known good version.
+> **Important note from Entagen site**: This job is potentially destructive as it will delete old feature branch jobs (only if the job is not running) for feature branches that no longer exist. It's strongly recommended that you back up your jenkins jobs directory before running, just in case. Another good alternative would be to put your jobs directory under git version control. Ignore workspace and builds directories and just about everything can be added. Commit periodocally and if something bad happens, revert back to the last known good version.
 
 ##### 2. Add script parameters (provided in Switches box)
 - `-DjenkinsUrl` URL of the Jenkins.You should be able to append api/json to the URL to get JSON feed.
