@@ -59,7 +59,7 @@ class JenkinsJobManager {
 			jobName.startsWith(jobPrefix + '-')
 		}
 		println "-------------------------------------"
-		println "Jobs with provided prefix:" + jobsWithJobPrefix
+		println "Jobs with provided prefix (${jobPrefix}):" + jobsWithJobPrefix
 
 		// create any missing template jobs and delete any jobs matching the template patterns that no longer have branches
 		syncJobs(allBranchNames, jobsWithJobPrefix, templateJobs)
