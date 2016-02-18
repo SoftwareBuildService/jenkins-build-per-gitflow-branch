@@ -57,7 +57,7 @@ class JenkinsApi {
 	}
 
 	String getJobStatus(String jobName) {
-		def response = get(path: "job/${jobName}/lastBuild/api/xml", headers: [Accept: 'application/xml'])
+		def response = get(path: "job/${jobName}/lastBuild/api/xml", contentType: TEXT, headers: [Accept: 'application/xml'])
 		response.data.text
 	}
 
@@ -233,7 +233,6 @@ class JenkinsApi {
 		def root = new XmlParser().parseText(jobStatus)
 		NodeList isJobRunning=root.depthFirst().findAll{it.name() == "building"}
 		if(isJobRunning && isJobRunning!=null){
-			println isJobRunning[0].value()[0]
 			return isJobRunning[0].value()[0].toBoolean()
 		}
 		return false
