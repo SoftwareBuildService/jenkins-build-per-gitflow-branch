@@ -56,6 +56,12 @@ class JenkinsApi {
 		response.data.text
 	}
 
+	String getJobStatus(String jobName) {
+		def response = get(path: "job/${jobName}/lastBuild/api/xml?depth=1", contentType: TEXT,
+		headers: [Accept: 'application/xml'])
+		response.data.text
+	}
+
 	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel) {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
@@ -215,10 +221,25 @@ class JenkinsApi {
 	}
 
 	void deleteJob(String jobName) {
-		println "deleting job $jobName"
-		post("job/${jobName}/doDelete")
+		String jobStatus = getJobStatus(jobName)
+		if(isJobRunning(jobStatus)){
+			println "Job $jobName is running (no deletion)"
+		}else{
+			println "deleting job $jobName"
+			post("job/${jobName}/doDelete")
+		}
 	}
 
+	public boolean isJobRunning(String jobStatus){
+		def root = new XmlParser().parseText(jobStatus)
+		NodeList isJobRunning=root.depthFirst().findAll{it.name() == "building"}
+		if(isJobRunning && isJobRunning!=null){
+			println isJobRunning[0].value()[0]
+			return isJobRunning[0].value()[0].toBoolean()
+		}
+		return false
+	}
+	
 	protected get(Map map) {
 		// get is destructive to the map, if there's an error we want the values around still
 		Map mapCopy = map.clone() as Map
