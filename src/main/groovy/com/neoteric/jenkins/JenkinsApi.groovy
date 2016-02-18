@@ -57,7 +57,7 @@ class JenkinsApi {
 	}
 
 	String getJobStatus(String jobName) {
-		def response = get(path: "job/${jobName}/lastBuild/api/xml")
+		def response = get(path: "job/${jobName}/lastBuild/api/xml", headers: [Accept: 'application/xml'])
 		response.data.text
 	}
 
