@@ -61,7 +61,7 @@ class JenkinsApi {
 		response.data.text
 	}
 
-	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel) {
+	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel, Boolean localFeatureMerge) {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
 		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy)
@@ -95,7 +95,7 @@ class JenkinsApi {
         return pconfig
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false) {
+	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false, Boolean localFeatureMerge=false) {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
@@ -174,6 +174,17 @@ class JenkinsApi {
 		xmlPrinter.setPreserveWhitespace(true)
 		xmlPrinter.print(root)
 		return writer.toString()
+	}
+	
+	Node findGitExtensions(Node root, String remote, String target, String mergestrategy="default", String fastforwardmode="FF"){
+		def nodeBuilder= new NodeBuilder()
+		def mergeNode = nodeBuilder."hudson.plugins.git.extensions.impl.PreBuildMerge" {
+			options{
+				mergeRemote(remote)
+				mergeTarget(target)
+				mergeStrategy(mergestrategy)
+			}
+		}	
 	}
 	
 	void startJob(ConcreteJob job) {
