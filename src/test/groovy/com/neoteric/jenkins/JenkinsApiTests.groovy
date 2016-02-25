@@ -100,6 +100,22 @@ class JenkinsApiTests {
 	}
 
 	@Test
+	public void shouldChangeMergeBranchNameDefault() {
+		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
+		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", ,"" ,"release", false, "default", true);
+		assertThat(result).contains("<hudson.plugins.git.extensions.impl.PreBuildMerge>")
+		assertThat(result).contains("<mergeTarget>develop</mergeTarget>")
+	}
+
+	@Test
+	public void shouldChangeMergeBranchNameSimple() {
+		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
+		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", ,"" ,"release", false, "simple", true);
+		assertThat(result).contains("<hudson.plugins.git.extensions.impl.PreBuildMerge>")
+		assertThat(result).contains("<mergeTarget>next</mergeTarget>")
+	}
+
+	@Test
 	public void shouldChangeSonarBranchName() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
 		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", "1.0.0", "release");

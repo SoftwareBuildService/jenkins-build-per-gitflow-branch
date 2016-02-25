@@ -3,6 +3,7 @@ package com.neoteric.jenkins
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.RESTClient
+import groovy.xml.QName
 import static groovyx.net.http.ContentType.*
 
 import org.apache.http.conn.HttpHostConnectException
@@ -88,14 +89,14 @@ class JenkinsApi {
 		elements.join();
 	}
 
-	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy) {
+	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false) {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
-		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy)
+		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy, branchModel, localFeatureMerge)
         return pconfig
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false, Boolean localFeatureMerge=false) {
+	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false, String branchModel="default", Boolean localFeatureMerge=false) {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
@@ -127,6 +128,13 @@ class JenkinsApi {
 			startOnCreateParam.parent().remove(startOnCreateParam)
 		}
 
+		if(localFeatureMerge){
+			if(branchModel=="default")
+				enableMergeBeforeBuild(root, "origin", "develop")
+			else if(branchModel=="simple")
+				enableMergeBeforeBuild(root, "origin", "next")
+		}
+
 		// modify release target
 		Node mavenReleaseTargets = findMavenReleaseTarget(root)
 		if(mavenReleaseTargets!=null){
@@ -156,8 +164,6 @@ class JenkinsApi {
 		}
 		
 		// disable deployment of feature builds if necessary
-		println noFeatureDeploy 
-		println jobCategory
 		if(noFeatureDeploy && jobCategory=="feature"){
 			Node mavenGoals=findMavenGoals(root)
 			println mavenGoals
@@ -176,17 +182,15 @@ class JenkinsApi {
 		return writer.toString()
 	}
 	
-	Node findGitExtensions(Node root, String remote, String target, String mergestrategy="default", String fastforwardmode="FF"){
-		def nodeBuilder= new NodeBuilder()
-		def mergeNode = nodeBuilder."hudson.plugins.git.extensions.impl.PreBuildMerge" {
-			options{
-				mergeRemote(remote)
-				mergeTarget(target)
-				mergeStrategy(mergestrategy)
-			}
-		}	
+	void enableMergeBeforeBuild(Node root, String remote, String target, String mergestrategy="default", String fastforwardmode="FF") {
+		def preBuildMergeNode = new Node(root.scm.extensions[0], "hudson.plugins.git.extensions.impl.PreBuildMerge")
+		def optionsNode=preBuildMergeNode.appendNode(new QName("options"), [:])
+		optionsNode.appendNode(new QName("mergeRemote"), [:], remote)
+		optionsNode.appendNode(new QName("mergeTarget"), [:], target)
+		optionsNode.appendNode(new QName("mergeStrategy"), [:], mergestrategy)
+		optionsNode.appendNode(new QName("fastForwardMode"), [:], fastforwardmode)
 	}
-	
+
 	void startJob(ConcreteJob job) {
 		String templateConfig = getJobConfig(job.templateJob.jobName)
 		if (shouldStartJob(templateConfig)) {
