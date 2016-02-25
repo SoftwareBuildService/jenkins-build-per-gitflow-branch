@@ -62,7 +62,7 @@ class JenkinsApi {
 		response.data.text
 	}
 
-	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel, Boolean localFeatureMerge) {
+	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false) {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
 		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy)
