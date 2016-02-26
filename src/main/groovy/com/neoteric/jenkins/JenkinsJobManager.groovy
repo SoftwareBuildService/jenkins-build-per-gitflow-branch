@@ -16,6 +16,7 @@ class JenkinsJobManager {
 	Boolean noDelete = false
 	Boolean startOnCreate = false
 	Boolean noFeatureDeploy = false
+	Boolean mergeBeforeBuild = false
 	
 	String featureSuffix = "feature-"
 	String hotfixSuffix = "hotfix-"
