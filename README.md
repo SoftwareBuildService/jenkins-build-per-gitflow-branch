@@ -56,6 +56,12 @@ The whole idea is to have a single Jenkins job which executes periodically, chec
 - `-DjobPrefix` Prefix name of project jobs to create
 - `-DcreateJobInView` If you want the script to create the job in a view provide the view name here. It also supports nested views, just separate them with a slash '/', ex. *view/nestedview*
 - `-DnoDelete` pass this flag with *true* value to avoid removing obsolete jobs (with no corresponding git branch) (optional)
+- `-DnoFeatureDeploy` with this property defined as true, the maven goal `deploy` in the feature job is replaced with `package` (optional)
+- `-DbranchModel` you can switch the used branch model to:
+    - `default` with development branch, feature branches, release and hotfix branches
+    - `simple` with development branch, feature branches, maintenance branches
+This property is optional
+- `-DdevelopmentBranch` switch to a custom development branch (optional). This property is only used to select the right job names. Default value is `develop`
 
 Sample parameters configuration:
 ```
