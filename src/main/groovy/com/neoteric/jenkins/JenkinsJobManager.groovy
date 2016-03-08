@@ -27,6 +27,7 @@ class JenkinsJobManager {
 	String templateReleaseSuffix = "release"
 
 	String branchModel = "default"
+	String developmentBranch = "develop"
 	
 	def branchSuffixMatch = []
 	JenkinsApi jenkinsApi
@@ -72,7 +73,7 @@ class JenkinsJobManager {
 		TemplateJob templateJobHotfix
 		TemplateJob templateJobFeature =  templateJobRelease = templateJobHotfix = null
 
-        String baseJobName = templateJob.replace("-develop", "").replace("-next", "")
+        String baseJobName = templateJob.replace("-"+developmentBranch, "")
   		templateJobFeature = new TemplateJob(jobName: templateJob, baseJobName: baseJobName, templateBranchName: templateFeatureSuffix, jobCategory: "feature")
     	templateJobRelease = new TemplateJob(jobName: templateJob, baseJobName: baseJobName, templateBranchName: templateReleaseSuffix, jobCategory: "release")
 		templateJobHotfix = new TemplateJob(jobName: templateJob, baseJobName: baseJobName, templateBranchName: templateHotfixSuffix, jobCategory: "hotfix")
@@ -126,11 +127,12 @@ class JenkinsJobManager {
 			jobsToDeletePerBranch.each { println "         $it" }
 			jobsToDelete.addAll(jobsToDeletePerBranch)
 		}
+		
 		println "\nSummary:\n---------------"
 		if (missingJobs) {
 			for(ConcreteJob missingJob in missingJobs) {
 				println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
-				jenkinsApi.cloneJobForBranch(jobPrefix, missingJob, createJobInView, gitUrl, noFeatureDeploy, branchModel)
+				jenkinsApi.cloneJobForBranch(jobPrefix, missingJob, createJobInView, gitUrl, noFeatureDeploy, branchModel, mergeBeforeBuild)
 				jenkinsApi.startJob(missingJob)
 			}
 		}

@@ -40,7 +40,7 @@ class JenkinsJobManagerTests {
 	@Test
 	public void testFindTemplateJobsSimpleBranchModel() {
 		JenkinsJobManager jenkinsJobManager =
-				new JenkinsJobManager(templateJob: "foo-next", jobPrefix: "myproj", jenkinsUrl: "http://dummy.com", gitUrl: "git@dummy.com:company/myproj.git", branchModel: "simple")
+				new JenkinsJobManager(templateJob: "foo-next", jobPrefix: "myproj", jenkinsUrl: "http://dummy.com", gitUrl: "git@dummy.com:company/myproj.git", branchModel: "simple", developmentBranch: "next")
 
 		List<String> allJobNames = [
 				"myproj-foo-master",
@@ -76,7 +76,7 @@ class JenkinsJobManagerTests {
 
 	@Test
 	public void testGetTemplateJobsSimpleBranchModel() {
-		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(jobPrefix: "NeoDocs", templateJob: "NeoDocs-build-next", gitUrl: "git@dummy.com:company/myproj.git", jenkinsUrl: "http://dummy.com", branchModel: "simple")
+		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(jobPrefix: "NeoDocs", templateJob: "NeoDocs-build-next", gitUrl: "git@dummy.com:company/myproj.git", jenkinsUrl: "http://dummy.com", branchModel: "simple", developmentBranch: "next")
 
 		List<String> allJobNames = [
 				"NeoDocs-build-next",
@@ -87,6 +87,24 @@ class JenkinsJobManagerTests {
 		List<TemplateJob> templateJobs = [
 				new TemplateJob(jobName: "NeoDocs-build-next", baseJobName: "NeoDocs-build", templateBranchName: "feature", jobCategory: "feature"),
 				new TemplateJob(jobName: "NeoDocs-build-next", baseJobName: "NeoDocs-build", templateBranchName: "release", jobCategory: "release"),
+		]
+
+		assert templateJobs == jenkinsJobManager.findRequiredTemplateJobs(allJobNames)
+	}
+
+	@Test
+	public void testCustomDevelopmentBranch() {
+		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(jobPrefix: "NeoDocs", templateJob: "NeoDocs-build-dev", gitUrl: "git@dummy.com:company/myproj.git", jenkinsUrl: "http://dummy.com", branchModel: "simple", developmentBranch: "dev")
+
+		List<String> allJobNames = [
+				"NeoDocs-build-dev",
+				"NeoDocs-build",
+				"NeoDocs-deploy-dev",
+				"NeoDocs-build-hotfix"
+		]
+		List<TemplateJob> templateJobs = [
+				new TemplateJob(jobName: "NeoDocs-build-dev", baseJobName: "NeoDocs-build", templateBranchName: "feature", jobCategory: "feature"),
+				new TemplateJob(jobName: "NeoDocs-build-dev", baseJobName: "NeoDocs-build", templateBranchName: "release", jobCategory: "release"),
 		]
 
 		assert templateJobs == jenkinsJobManager.findRequiredTemplateJobs(allJobNames)

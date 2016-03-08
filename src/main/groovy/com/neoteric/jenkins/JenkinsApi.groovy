@@ -65,7 +65,7 @@ class JenkinsApi {
 	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false) {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
-		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy)
+		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy, branchModel, localFeatureMerge)
 		TemplateJob templateJob = missingJob.templateJob
 
 		//Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
@@ -128,7 +128,9 @@ class JenkinsApi {
 			startOnCreateParam.parent().remove(startOnCreateParam)
 		}
 
+		println "localFeatureMerge: " + localFeatureMerge
 		if(localFeatureMerge){
+			println "branchModel: " + branchModel
 			if(branchModel=="default")
 				enableMergeBeforeBuild(root, "origin", "develop")
 			else if(branchModel=="simple")
@@ -179,6 +181,7 @@ class JenkinsApi {
 		XmlNodePrinter xmlPrinter = new XmlNodePrinter(new PrintWriter(writer))
 		xmlPrinter.setPreserveWhitespace(true)
 		xmlPrinter.print(root)
+		println writer.toString()
 		return writer.toString()
 	}
 	

@@ -21,7 +21,8 @@ class Main {
             v: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
             p: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
             b: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"],
-            m: [longOpt: 'merge-before-build',  required: false, args: 0, argName: 'mergeBeforeBuild', description: "Execute a local merge into develop branch before build"]
+            m: [longOpt: 'merge-before-build',  required: false, args: 0, argName: 'mergeBeforeBuild', description: "Execute a local merge into develop branch before build"],
+			db: [longOpt: 'development-branch',  required: false, args: 1, argName: 'developmentBranch', description: ""]
     ]
 
     public static void main(String[] args) {
