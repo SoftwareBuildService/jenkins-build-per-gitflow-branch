@@ -142,7 +142,6 @@ class JenkinsApi {
 		if(mavenReleaseTargets!=null){
 			def mavenReleaseTargetsValue=mavenReleaseTargets.text()
 			def newMavenReleaseTargetsValue=mavenReleaseTargetsValue.replace("feature-finish", "$jobCategory-finish")
-			println mavenReleaseTargetsValue
 			if(noFeatureDeploy && jobCategory=="feature"){
 				if(!mavenReleaseTargetsValue.contains("-DnoDeploy=true"))
 					newMavenReleaseTargetsValue=newMavenReleaseTargetsValue.concat("-DnoDeploy=true")
@@ -168,10 +167,8 @@ class JenkinsApi {
 		// disable deployment of feature builds if necessary
 		if(noFeatureDeploy && jobCategory=="feature"){
 			Node mavenGoals=findMavenGoals(root)
-			println mavenGoals
 			if(mavenGoals!=null){
 				def mavenGoalsValue=mavenGoals.text()
-				println mavenGoalsValue
 				mavenGoals.setValue(mavenGoalsValue.replace("deploy", "install"))
 			}
 				
@@ -181,7 +178,6 @@ class JenkinsApi {
 		XmlNodePrinter xmlPrinter = new XmlNodePrinter(new PrintWriter(writer))
 		xmlPrinter.setPreserveWhitespace(true)
 		xmlPrinter.print(root)
-		println writer.toString()
 		return writer.toString()
 	}
 	
