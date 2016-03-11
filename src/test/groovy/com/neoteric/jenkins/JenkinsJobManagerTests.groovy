@@ -171,8 +171,8 @@ class JenkinsJobManagerTests {
 		jenkinsJobManager.syncJobs(branchNames ,jobNames, templateJobs)
 
 		assertThat(log.getLog().substring(log.getLog().indexOf("Summary"))).containsSequence( 
-			"Creating", "NeoDocs-deploy-feature_test2 from NeoDocs-deploy-develop",
-						"NeoDocs-build-feature_test2 from NeoDocs-build-develop",
+			"Creating", "NeoDocs-build-feature_test2 from NeoDocs-build-develop",
+						"NeoDocs-deploy-feature_test2 from NeoDocs-deploy-develop",
 						"NeoDocs-build-feature_PROJ_SUB_002_TOP-12346 from NeoDocs-build-develop",
 			"Deleting", "NeoDocs-deploy-feature_test3",
 						"NeoDocs-deploy-feature_PROJ_SUB_002_TOP-12347")
