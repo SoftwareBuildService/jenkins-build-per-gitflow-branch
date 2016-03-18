@@ -290,6 +290,9 @@ class JenkinsApi {
 				if (e.response?.status == 404) {
 					println "Couldn't find crumbIssuer for jenkins. Just moving on it may not be needed."
 				}
+				else if (e.response?.status == 400) {
+					println "Error during Post. Move forward"
+				}
 				else {
 					def msg = "Unexpected failure on ${jenkinsServerUrl}crumbIssuer/api/json: ${resp.statusLine} ${resp.status}"
 					throw new Exception(msg)
