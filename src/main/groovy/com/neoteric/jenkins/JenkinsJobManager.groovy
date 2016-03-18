@@ -49,9 +49,9 @@ class JenkinsJobManager {
 		println "-------------------------------------"
 		println "All branch names:" + allBranchNames
 
-		List<String> allJobNames = jenkinsApi.jobNames
+		List<String> allJobNames = jenkinsApi.getJobNames(jobPrefix)
 		println "-------------------------------------"
-		println "All job names:" + allJobNames
+		println "All job names with prefix "+jobPrefix+":" + allJobNames
 
 		List<TemplateJob> templateJobs = findRequiredTemplateJobs(allJobNames)
 		println "-------------------------------------"

@@ -150,6 +150,53 @@ class JenkinsJobManagerTests {
 		}
 
 	@Test
+	public void testSyncLongBranchNames() {
+
+		List<TemplateJob> templateJobs = [
+			new TemplateJob(jobName: "NeoDocs-build-develop", baseJobName: "NeoDocs-build", templateBranchName: "feature"),
+			new TemplateJob(jobName: "NeoDocs-deploy-develop", baseJobName: "NeoDocs-deploy", templateBranchName: "feature"),
+			new TemplateJob(jobName: "NeoDocs-build-develop", baseJobName: "NeoDocs-build", templateBranchName: "hotfix")
+		]
+
+		List<String> jobNames = [
+			"NeoDocs-build-feature_PROJ_SUB_001_TOP-12345", 
+			"NeoDocs-deploy-feature_PROJ_SUB_002_TOP-12346", // add missing build PROJ_SUB_002_TOP-12346
+			"NeoDocs-build-hotfix_emergency",
+			"NeoDocs-deploy-feature_test3", // to delete
+			"NeoDocs-deploy-feature_PROJ_SUB_002_TOP-12347",// to delete
+			// do nothing - already there
+			"NeoDocs-build-release_1.0.0", 
+			"NeoDocs-build-release" // do nothing - no template avail
+		]
+
+		List<String> branchNames = [
+			"feature/PROJ_SUB_001_TOP-12345",
+			"feature/test2",
+			"feature/PROJ_SUB_002_TOP-12346",
+			"master",
+			"release/1.0.0",
+			"hotfix/emergency"
+		]
+		JenkinsJobManager jenkinsJobManager = new JenkinsJobManager(jobPrefix: "NeoDocs", 
+			templateJob: "NeoDocs-build-develop", 
+			gitUrl: "git@dummy.com:company/myproj.git", 
+			jenkinsUrl: "http://dummy.com",
+			featureSuffix: "feature/",
+			releaseSuffix: "release/",
+			hotfixSuffix: "hotfix/")
+
+		jenkinsJobManager.jenkinsApi = new JenkinsApiMocked()
+		jenkinsJobManager.syncJobs(branchNames ,jobNames, templateJobs)
+
+		assertThat(log.getLog().substring(log.getLog().indexOf("Summary"))).containsSequence( 
+			"Creating", "NeoDocs-build-feature_test2 from NeoDocs-build-develop",
+						"NeoDocs-deploy-feature_test2 from NeoDocs-deploy-develop",
+						"NeoDocs-build-feature_PROJ_SUB_002_TOP-12346 from NeoDocs-build-develop",
+			"Deleting", "NeoDocs-deploy-feature_test3",
+						"NeoDocs-deploy-feature_PROJ_SUB_002_TOP-12347")
+		}
+
+	@Test
 	public void testSyncSimpleModel() {
 
 		List<TemplateJob> templateJobsBuild = [
@@ -173,8 +220,8 @@ class JenkinsJobManagerTests {
 		]
 
 		List<String> branchNames = [
-				"topic/PROJ-1234_shortDescription",
-				"topic/PROJ-1236_shortDescription2",
+				"topic/PROJ-1234",
+				"topic/PROJ-1236",
 				"master",
 				"maint/1.0.0",
 				"maint/1.0.2"
