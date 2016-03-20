@@ -29,6 +29,8 @@ class JenkinsJobManager {
 	String branchModel = "default"
 	String developmentBranch = "develop"
 	
+	String releaseProperty=""
+	
 	def branchSuffixMatch = []
 	JenkinsApi jenkinsApi
 	GitApi gitApi

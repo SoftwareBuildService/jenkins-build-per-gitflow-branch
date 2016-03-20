@@ -62,10 +62,10 @@ class JenkinsApi {
 		response.data.text
 	}
 
-	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false) {
+	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
-		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy, branchModel, localFeatureMerge)
+		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy, branchModel, localFeatureMerge, releaseProperty)
 		TemplateJob templateJob = missingJob.templateJob
 
 		//Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
@@ -89,14 +89,14 @@ class JenkinsApi {
 		elements.join();
 	}
 
-	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false) {
+	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
 		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy, branchModel, localFeatureMerge)
         return pconfig
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false, String branchModel="default", Boolean localFeatureMerge=false) {
+	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"

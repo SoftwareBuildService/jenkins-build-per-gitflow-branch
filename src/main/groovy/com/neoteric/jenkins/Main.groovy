@@ -22,7 +22,8 @@ class Main {
             p: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
             b: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"],
             m: [longOpt: 'merge-before-build',  required: false, args: 0, argName: 'mergeBeforeBuild', description: "Execute a local merge into develop branch before build"],
-			db: [longOpt: 'development-branch',  required: false, args: 1, argName: 'developmentBranch', description: "Define a custom development branch - gradle flag -DdevelopmentBranch=<developmentBranch>"]
+			db: [longOpt: 'development-branch',  required: false, args: 1, argName: 'developmentBranch', description: "Define a custom development branch - gradle flag -DdevelopmentBranch=<developmentBranch>"],
+			rp: [longOpt: 'release-property',  required: false, args: 1, argName: 'releaseProperty', description: "Add extra property for release step - gradle flag -DreleaseProperty=<releaseProperty>"]
     ]
 
     public static void main(String[] args) {
