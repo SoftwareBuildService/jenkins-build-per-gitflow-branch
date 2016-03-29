@@ -12,6 +12,7 @@ import org.apache.http.HttpStatus
 import org.apache.http.HttpRequestInterceptor
 import org.apache.http.protocol.HttpContext
 import org.apache.http.HttpRequest
+import org.codehaus.groovy.util.ReleaseInfo;
 
 class JenkinsApi {
 	
@@ -92,7 +93,7 @@ class JenkinsApi {
 	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
-		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy, branchModel, localFeatureMerge)
+		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy, branchModel, localFeatureMerge, releaseProperty)
         return pconfig
 	}
 
@@ -120,6 +121,13 @@ class JenkinsApi {
 			if(featureNameNode){
 				featureNameNode.defaultValue[0].value="$featureName"
 			}
+		}
+		println releaseProperty
+		if (!releaseProperty.empty){
+			def parameterDefinitionsNode = new Node(root.buildWrappers."hudson.plugins.release.ReleaseWrapper".parameterDefinitions.last(), "hudson.model.StringParameterDefinition")
+			parameterDefinitionsNode.appendNode("name", releaseProperty)
+			parameterDefinitionsNode.appendNode("description",  "")
+			parameterDefinitionsNode.appendNode("defaultValue", releaseProperty)
 		}
 		
 		//remove template build variable
@@ -178,16 +186,17 @@ class JenkinsApi {
 		XmlNodePrinter xmlPrinter = new XmlNodePrinter(new PrintWriter(writer))
 		xmlPrinter.setPreserveWhitespace(true)
 		xmlPrinter.print(root)
+		println writer.toString()
 		return writer.toString()
 	}
 	
 	void enableMergeBeforeBuild(Node root, String remote, String target, String mergestrategy="default", String fastforwardmode="FF") {
 		def preBuildMergeNode = new Node(root.scm.extensions[0], "hudson.plugins.git.extensions.impl.PreBuildMerge")
 		def optionsNode=preBuildMergeNode.appendNode(new QName("options"), [:])
-		optionsNode.appendNode(new QName("mergeRemote"), [:], remote)
-		optionsNode.appendNode(new QName("mergeTarget"), [:], target)
-		optionsNode.appendNode(new QName("mergeStrategy"), [:], mergestrategy)
-		optionsNode.appendNode(new QName("fastForwardMode"), [:], fastforwardmode)
+		optionsNode.appendNode("mergeRemote", remote)
+		optionsNode.appendNode("mergeTarget", target)
+		optionsNode.appendNode("mergeStrategy", mergestrategy)
+		optionsNode.appendNode("fastForwardMode", fastforwardmode)
 	}
 
 	void startJob(ConcreteJob job) {
@@ -213,7 +222,13 @@ class JenkinsApi {
 		}
 	}
 
-    Node findMavenReleaseTarget(Node root) {
+	Node findReleasePropertyParameter(Node root, String releaseProperty) {
+		return root.buildWrappers."hudson.plugins.release.ReleaseWrapper".parameterDefinitions."hudson.model.StringParameterDefinition".find {
+			it.name[0].text() == releaseProperty
+		}
+	}
+
+	    Node findMavenReleaseTarget(Node root) {
 		NodeList mavenTargets=root.buildWrappers."hudson.plugins.release.ReleaseWrapper".preBuildSteps."hudson.tasks.Maven".targets
 		if(mavenTargets && mavenTargets != null)
 			return mavenTargets.get(0)
