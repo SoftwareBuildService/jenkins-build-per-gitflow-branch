@@ -122,8 +122,7 @@ class JenkinsApi {
 				featureNameNode.defaultValue[0].value="$featureName"
 			}
 		}
-		println releaseProperty
-		if (!releaseProperty.empty){
+		if (!releaseProperty.empty && root.buildWrappers."hudson.plugins.release.ReleaseWrapper"[0]){
 			def parameterDefinitionsNode = new Node(root.buildWrappers."hudson.plugins.release.ReleaseWrapper".parameterDefinitions.last(), "hudson.model.StringParameterDefinition")
 			parameterDefinitionsNode.appendNode("name", releaseProperty)
 			parameterDefinitionsNode.appendNode("description",  "")
