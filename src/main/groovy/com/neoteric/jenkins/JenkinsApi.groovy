@@ -185,7 +185,6 @@ class JenkinsApi {
 		XmlNodePrinter xmlPrinter = new XmlNodePrinter(new PrintWriter(writer))
 		xmlPrinter.setPreserveWhitespace(true)
 		xmlPrinter.print(root)
-		println writer.toString()
 		return writer.toString()
 	}
 	
