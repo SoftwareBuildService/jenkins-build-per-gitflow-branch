@@ -63,10 +63,20 @@ class JenkinsApi {
 		response.data.text
 	}
 
-	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
+	void cloneJobForBranch(String jobPrefix,
+						   ConcreteJob missingJob,
+						   String createJobInView,
+						   String gitUrl,
+						   Boolean noFeatureDeploy,
+                           String branchModel="default",
+                           Boolean localFeatureMerge=false,
+                           String releaseProperty="",
+                           String featureSonarProperties="",
+                           String releaseSonarProperties= "",
+                           String hotfixSonarProperties="") {
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
-		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy, branchModel, localFeatureMerge, releaseProperty)
+		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy, branchModel, localFeatureMerge, releaseProperty, featureSonarProperties, releaseSonarProperties, hotfixSonarProperties)
 		TemplateJob templateJob = missingJob.templateJob
 
 		//Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
@@ -90,14 +100,33 @@ class JenkinsApi {
 		elements.join();
 	}
 
-	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
+	String configForMissingJob(ConcreteJob missingJob,
+                               String gitUrl,
+                               Boolean noFeatureDeploy,
+                               String branchModel="default",
+                               Boolean localFeatureMerge=false,
+                               String releaseProperty="",
+                               String featureSonarProperties="",
+                               String releaseSonarProperties= "",
+                               String hotfixSonarProperties="") {
 		TemplateJob templateJob = missingJob.templateJob
 		String config = getJobConfig(templateJob.jobName)
-		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy, branchModel, localFeatureMerge, releaseProperty)
+		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy, branchModel, localFeatureMerge, releaseProperty, featureSonarProperties, releaseSonarProperties, hotfixSonarProperties)
         return pconfig
 	}
 
-	public String processConfig(String entryConfig, String branchName, String gitUrl, String featureName="", String jobCategory="feature", Boolean noFeatureDeploy=false, String branchModel="default", Boolean localFeatureMerge=false, String releaseProperty="") {
+	public String processConfig(String entryConfig,
+                                String branchName,
+                                String gitUrl,
+                                String featureName="",
+                                String jobCategory="feature",
+                                Boolean noFeatureDeploy=false,
+                                String branchModel="default",
+                                Boolean localFeatureMerge=false,
+                                String releaseProperty="",
+                                String featureSonarProperties="",
+                                String releaseSonarProperties= "",
+                                String hotfixSonarProperties="") {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
@@ -111,11 +140,19 @@ class JenkinsApi {
 			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName".replace("/","_")
 		}
 		
-		if(jobCategory=="feature" && root.publishers."hudson.plugins.sonar.SonarPublisher"[0] != null) {
-			def publishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher"[0].parent()
-			publishersNode.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
+		if(root.publishers."hudson.plugins.sonar.SonarPublisher"[0] != null) {
+			def sonarPublisheNode=root.publishers."hudson.plugins.sonar.SonarPublisher"[0]
+            switch(jobCategory){
+                case "feature": if(!featureSonarProperties.empty) sonarPublisheNode.jobAdditionalProperties[0].value=featureSonarProperties
+                    break
+                case "release": if(!releaseSonarProperties.empty) sonarPublisheNode.jobAdditionalProperties[0].value=releaseSonarProperties
+                    break
+                case "hotfix": if(!hotfixSonarProperties.empty) sonarPublisheNode.jobAdditionalProperties[0].value=hotfixSonarProperties
+                    break
+            }
 		}
-		
+
+
 		if(!featureName.empty && jobCategory=="feature" ){
 			def featureNameNode = findfeatureNameParameter(root)
 			if(featureNameNode){

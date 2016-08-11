@@ -102,7 +102,7 @@ class JenkinsApiTests {
 	@Test
 	public void shouldChangeMergeBranchNameDefault() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
-		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", ,"" ,"release", false, "default", true);
+		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl","" ,"release", false, "default", true);
 		assertThat(result).contains("<hudson.plugins.git.extensions.impl.PreBuildMerge>")
 		assertThat(result).contains("<mergeTarget>develop</mergeTarget>")
 	}
@@ -110,7 +110,7 @@ class JenkinsApiTests {
 	@Test
 	public void shouldChangeMergeBranchNameSimple() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
-		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", ,"" ,"release", false, "simple", true);
+		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl","" ,"release", false, "simple", true);
 		assertThat(result).contains("<hudson.plugins.git.extensions.impl.PreBuildMerge>")
 		assertThat(result).contains("<mergeTarget>next</mergeTarget>")
 	}
@@ -121,7 +121,23 @@ class JenkinsApiTests {
 		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", "1.0.0", "release");
 		assertThat(result).contains("<branch>release-1.0.0</branch>")
 	}
-	
+
+	@Test
+	public void shouldChangeFeatureSonarProperties() {
+		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
+		def result = api.processConfig(CONFIG,
+				"release-1.0.0",
+                "newGitUrl",
+                "newFeature",
+                "feature",
+                false,
+                "default",
+                false,
+                "",
+                "-Dsonar.java.source=1.7 -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.report.export.path=sonar-report.json -Dsonar.issuesReport.html.enable=true");
+		assertThat(result).contains("<jobAdditionalProperties>-Dsonar.java.source=1.7 -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.report.export.path=sonar-report.json -Dsonar.issuesReport.html.enable=true</jobAdditionalProperties>")
+	}
+
 	@Test
 	public void shouldNotThrowExceptionWhenNoSonarConfig() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
@@ -235,7 +251,7 @@ class JenkinsApiTests {
       <branch>toBeChanged</branch>
       <language></language>
       <mavenOpts></mavenOpts>
-      <jobAdditionalProperties>-Dsonar.java.source=1.7</jobAdditionalProperties>
+      <jobAdditionalProperties>-Dsonar.java.source=1.7 -Dsonar.issuesReport.console.enable=true -Dsonar.report.export.path=sonar-report.json -Dsonar.issuesReport.html.enable=true</jobAdditionalProperties>
       <settings class="jenkins.mvn.DefaultSettingsProvider"/>
       <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
       <usePrivateRepository>false</usePrivateRepository>

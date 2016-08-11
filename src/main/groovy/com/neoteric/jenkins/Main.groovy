@@ -23,7 +23,10 @@ class Main {
             b: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"],
             m: [longOpt: 'merge-before-build',  required: false, args: 0, argName: 'mergeBeforeBuild', description: "Execute a local merge into develop branch before build"],
 			db: [longOpt: 'development-branch',  required: false, args: 1, argName: 'developmentBranch', description: "Define a custom development branch - gradle flag -DdevelopmentBranch=<developmentBranch>"],
-			rp: [longOpt: 'release-property',  required: false, args: 1, argName: 'releaseProperty', description: "Add extra property for release step - gradle flag -DreleaseProperty=<releaseProperty>"]
+			rp: [longOpt: 'release-property',  required: false, args: 1, argName: 'releaseProperty', description: "Add extra property for release step - gradle flag -DreleaseProperty=<releaseProperty>"],
+            fsp: [longOpt: 'feature-sonar-properties',  required: false, args: 1, argName: 'featureSonarProperties', description: "Set Properties for SonarQube Analysis of feature build - gradle flag -DfeatureSonarProperties='<featureSonarProperties>'"],
+            rsp: [longOpt: 'release-sonar-properties',  required: false, args: 1, argName: 'releaseSonarProperties', description: "Set Properties for SonarQube Analysis of release build - gradle flag -DreleaseSonarProperties='<releaseSonarProperties>'"],
+            hsp: [longOpt: 'hotfix-release-properties',  required: false, args: 1, argName: 'hotfixSonarProperties', description: "Set Properties for SonarQube Analysis of hotfix build - gradle flag -DhotfixSonarProperties='<hotfixSonarProperties>'"]
     ]
 
     public static void main(String[] args) {

@@ -14,7 +14,6 @@ class JenkinsJobManager {
 
 	Boolean dryRun = false
 	Boolean noDelete = false
-	Boolean startOnCreate = false
 	Boolean noFeatureDeploy = false
 	Boolean mergeBeforeBuild = false
 	
@@ -30,6 +29,10 @@ class JenkinsJobManager {
 	String developmentBranch = "develop"
 	
 	String releaseProperty=""
+
+	String featureSonarProperties = ""
+	String releaseSonarProperties = ""
+	String hotfixSonarProperties = ""
 	
 	def branchSuffixMatch = []
 	JenkinsApi jenkinsApi
@@ -134,7 +137,7 @@ class JenkinsJobManager {
 		if (missingJobs) {
 			for(ConcreteJob missingJob in missingJobs) {
 				println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
-				jenkinsApi.cloneJobForBranch(jobPrefix, missingJob, createJobInView, gitUrl, noFeatureDeploy, branchModel, mergeBeforeBuild, releaseProperty)
+				jenkinsApi.cloneJobForBranch(jobPrefix, missingJob, createJobInView, gitUrl, noFeatureDeploy, branchModel, mergeBeforeBuild, releaseProperty, featureSonarProperties, releaseSonarProperties, hotfixSonarProperties)
 				jenkinsApi.startJob(missingJob)
 			}
 		}
