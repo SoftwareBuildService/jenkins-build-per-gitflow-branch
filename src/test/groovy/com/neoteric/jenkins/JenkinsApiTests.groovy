@@ -21,7 +21,7 @@ import net.sf.json.JSON
 import net.sf.json.JSONObject
 
 class JenkinsApiTests {
-	
+
 	final shouldFail = new GroovyTestCase().&shouldFail
 
 	@Test
@@ -105,13 +105,13 @@ class JenkinsApiTests {
 		def result = api.processConfig(CONFIG, "release-1.0.0", "newGitUrl", "1.0.0", "release");
 		assertThat(result).contains("<branch>release-1.0.0</branch>")
 	}
-	
+
 	@Test
 	public void shouldNotThrowExceptionWhenNoSonarConfig() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
 		def result = api.processConfig(CONFIG_NO_SONAR, "release-1.0.0", "newGitUrl");
 	}
-	
+
 	@Test
 	public void testShouldStartJob() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
@@ -121,13 +121,19 @@ class JenkinsApiTests {
 	@Test
 	public void testIsJobRunning() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
-		assert true== api.isJobRunning(STATUS_BUILDING)
+
+		withXmlResponse(STATUS_BUILDING) {
+			assert true == api.isJobRunning("Jobname")
+		}
 	}
 
 	@Test
 	public void testJobISNotRunning() {
 		JenkinsApi api = new JenkinsApi(jenkinsServerUrl: "http://localhost:9090/jenkins")
-		assert false == api.isJobRunning(STATUS_NOT_BUILDING)
+
+		withXmlResponse(STATUS_NOT_BUILDING) {
+			assert false == api.isJobRunning("Jobname")
+		}
 	}
 
 	public void withJsonResponse(Map toJson, Closure closure) {
@@ -139,7 +145,18 @@ class JenkinsApiTests {
 
 		mockRESTClient.use { closure() }
 	}
-	
+
+	public void withXmlResponse(String xmlString, Closure closure) {
+		def xmlResult = [text: xmlString]
+
+		MockFor mockRESTClient = new MockFor(RESTClient)
+		mockRESTClient.demand.get { Map<String, ?> args ->
+			return [data: xmlResult]
+		}
+
+		mockRESTClient.use { closure() }
+	}
+
 	static final String CONFIG = '''
 <maven2-moduleset plugin="maven-plugin@2.7.1">
   <actions/>
@@ -235,7 +252,7 @@ class JenkinsApiTests {
     <completeBuild>true</completeBuild>
   </runPostStepsIfResult>
 </maven2-moduleset>'''
-	
+
 static final String CONFIG_NO_SONAR = '''
 <maven2-moduleset plugin="maven-plugin@2.7.1">
   <actions/>

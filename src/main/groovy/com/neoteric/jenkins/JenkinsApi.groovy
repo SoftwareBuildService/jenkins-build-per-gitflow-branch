@@ -13,8 +13,8 @@ import org.apache.http.protocol.HttpContext
 import org.apache.http.HttpRequest
 
 class JenkinsApi {
-	
-	
+
+
 	final String SHOULD_START_PARAM_NAME = "startOnCreate"
 	final String FEATURE_NAME_PARAM_NAME = "featureName"
 	String jenkinsServerUrl
@@ -99,7 +99,7 @@ class JenkinsApi {
 		def root = new XmlParser().parseText(entryConfig)
 		// update branch name
 		root.scm.branches."hudson.plugins.git.BranchSpec".name[0].value = "*/$branchName"
-		
+
 		if (root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0]) {
 			root.scm.extensions."hudson.plugins.git.extensions.impl.LocalBranch".localBranch[0].value = "$branchName"
 		}
@@ -108,19 +108,19 @@ class JenkinsApi {
 		if (root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0] != null) {
 			root.publishers."hudson.plugins.sonar.SonarPublisher".branch[0].value = "$branchName".replace("/","_")
 		}
-		
+
 		if(jobCategory=="feature" && root.publishers."hudson.plugins.sonar.SonarPublisher"[0] != null) {
 			def publishersNode=root.publishers."hudson.plugins.sonar.SonarPublisher"[0].parent()
 			publishersNode.remove(root.publishers."hudson.plugins.sonar.SonarPublisher")
 		}
-		
+
 		if(!featureName.empty && jobCategory=="feature" ){
 			def featureNameNode = findfeatureNameParameter(root)
 			if(featureNameNode){
 				featureNameNode.defaultValue[0].value="$featureName"
 			}
 		}
-		
+
 		//remove template build variable
 		Node startOnCreateParam = findStartOnCreateParameter(root)
 		if (startOnCreateParam) {
@@ -145,18 +145,18 @@ class JenkinsApi {
 			}
 			mavenReleaseTargets.setValue(newMavenReleaseTargetsValue)
 		}
-		
+
 		//check if it was the only parameter - if so, remove the enclosing tag, so the project won't be seen as build with parameters
 		def propertiesNode = root.properties
 		def parameterDefinitionsProperty = propertiesNode."hudson.model.ParametersDefinitionProperty".parameterDefinitions[0]
-		
+
 		if(parameterDefinitionsProperty && !parameterDefinitionsProperty.attributes() && !parameterDefinitionsProperty.children() && !parameterDefinitionsProperty.text()) {
 			root.remove(propertiesNode)
 			new Node(root, 'properties')
 		}
-		
+
 		// disable deployment of feature builds if necessary
-		println noFeatureDeploy 
+		println noFeatureDeploy
 		println jobCategory
 		if(noFeatureDeploy && jobCategory=="feature"){
 			Node mavenGoals=findMavenGoals(root)
@@ -166,16 +166,16 @@ class JenkinsApi {
 				println mavenGoalsValue
 				mavenGoals.setValue(mavenGoalsValue.replace("deploy", "install"))
 			}
-				
+
 		}
-		
+
 		def writer = new StringWriter()
 		XmlNodePrinter xmlPrinter = new XmlNodePrinter(new PrintWriter(writer))
 		xmlPrinter.setPreserveWhitespace(true)
 		xmlPrinter.print(root)
 		return writer.toString()
 	}
-	
+
 	void startJob(ConcreteJob job) {
 		String templateConfig = getJobConfig(job.templateJob.jobName)
 		if (shouldStartJob(templateConfig)) {
@@ -183,7 +183,7 @@ class JenkinsApi {
 			post('job/' + job.jobName + '/build')
 		}
 	}
-	
+
 	public boolean shouldStartJob(String config) {
 		Node root = new XmlParser().parseText(config)
 		Node startOnCreateParam = findStartOnCreateParameter(root)
@@ -192,7 +192,7 @@ class JenkinsApi {
 		}
 		return startOnCreateParam.defaultValue[0]?.text().toBoolean()
 	}
-	
+
 	Node findfeatureNameParameter(Node root) {
 		return root.buildWrappers."hudson.plugins.release.ReleaseWrapper".parameterDefinitions."hudson.model.StringParameterDefinition".find {
 			it.name[0].text() == FEATURE_NAME_PARAM_NAME
@@ -205,14 +205,14 @@ class JenkinsApi {
 			return mavenTargets.get(0)
 		return null
 	}
-	
+
 	Node findMavenGoals(Node root){
 		NodeList goals=root.goals
 		if(goals && goals != null)
 			return goals.get(0)
 		return null
 	}
-	
+
 	Node findStartOnCreateParameter(Node root) {
 		return root.properties."hudson.model.ParametersDefinitionProperty".parameterDefinitions."hudson.model.BooleanParameterDefinition".find {
 			it.name[0].text() == SHOULD_START_PARAM_NAME
@@ -220,24 +220,36 @@ class JenkinsApi {
 	}
 
 	void deleteJob(String jobName) {
-		String jobStatus = getJobStatus(jobName)
-		if(isJobRunning(jobStatus)){
+		if (isJobRunning(jobName)) {
 			println "Job $jobName is running (no deletion)"
-		}else{
+		} else {
 			println "deleting job $jobName"
 			post("job/${jobName}/doDelete")
 		}
 	}
 
-	public boolean isJobRunning(String jobStatus){
-		def root = new XmlParser().parseText(jobStatus)
-		NodeList isJobRunning=root.depthFirst().findAll{it.name() == "building"}
-		if(isJobRunning && isJobRunning!=null){
-			return isJobRunning[0].value()[0].toBoolean()
+	public boolean isJobRunning(String jobName){
+		try {
+			String jobStatus = getJobStatus(jobName)
+			def xmlResponse = new XmlParser().parseText(jobStatus)
+
+			NodeList isJobRunning = xmlResponse.depthFirst().findAll{it.name() == "building"}
+			if (isJobRunning && isJobRunning!=null){
+				return isJobRunning[0].value()[0].toBoolean()
+			} else {
+				return false
+			}
+		} catch(Exception exception) {
+			if (exception.getCause() != null && exception.getCause() instanceof HttpResponseException) {
+				def statusCode = exception.getCause().getStatusCode()
+				if (statusCode == 404) {
+					return false
+				}
+			}
+			throw exception
 		}
-		return false
 	}
-	
+
 	protected get(Map map) {
 		// get is destructive to the map, if there's an error we want the values around still
 		Map mapCopy = map.clone() as Map
