@@ -10,4 +10,5 @@ class ConcreteJob {
     String jobName
     String branchName
 	String featureName
+	String folderPath
 }

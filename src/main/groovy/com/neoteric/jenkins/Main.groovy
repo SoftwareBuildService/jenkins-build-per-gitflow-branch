@@ -20,7 +20,8 @@ class Main {
             n: [longOpt: 'no-feature-deploy', required: false, args: 0, argName: 'noFeatureDeploy', description: "Disable deploymet of feature builds to binary repository -DnoFeatureDeploy=true"],
             v: [longOpt: 'jenkins-user',  required: false, args: 1, argName: 'jenkinsUser', description: "Jenkins username - gradle flag -DjenkinsUser=<jenkinsUser>"],
             p: [longOpt: 'jenkins-password',  required: false, args: 1, argName: 'jenkinsPassword', description: "Jenkins password - gradle flag -DjenkinsPassword=<jenkinsPassword>"],
-            b: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"]
+            b: [longOpt: 'branch-model',  required: false, args: 1, argName: 'branchModel', description: "Branch model to use"],
+			l: [longOpt: 'job-in-folder',  required: false, args: 0, argName: 'jobInFolder', description: "Use job prefix as folder name (with CloudBees Folders Plugin)"]
     ]
 
     public static void main(String[] args) {

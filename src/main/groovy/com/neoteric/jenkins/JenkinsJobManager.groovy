@@ -16,6 +16,7 @@ class JenkinsJobManager {
 	Boolean noDelete = false
 	Boolean startOnCreate = false
 	Boolean noFeatureDeploy = false
+	Boolean jobInFolder = false
 	
 	String featureSuffix = "feature-"
 	String hotfixSuffix = "hotfix-"
@@ -60,9 +61,17 @@ class JenkinsJobManager {
 		}
 		println "-------------------------------------"
 		println "Jobs with provided prefix:" + jobsWithJobPrefix
+		
+		List<String> jobsInFolder;
+		if (jobInFolder){
+			// using jobPrefix as folderName
+			jobsInFolder = jenkinsApi.getJobNamesInFolder(jobPrefix)
+			println "-------------------------------------"
+			println "Jobs in folder '" + jobPrefix + "':" + jobsInFolder	
+		}
 
 		// create any missing template jobs and delete any jobs matching the template patterns that no longer have branches
-		syncJobs(allBranchNames, jobsWithJobPrefix, templateJobs)
+		syncJobs(allBranchNames, jobInFolder ? jobsInFolder : jobsWithJobPrefix, templateJobs)
 
 	}
 
@@ -100,7 +109,7 @@ class JenkinsJobManager {
 			branchesWithCorrespondingTemplate.each { branchToProcess ->
 				println "-----> Processing branch: $branchToProcess"
 				List<ConcreteJob> expectedJobsPerBranch = templateJobsByBranch[templateBranchToProcess].collect { TemplateJob templateJob ->
-					templateJob.concreteJobForBranch(jobPrefix, branchToProcess, branchToProcess.replaceAll(branchSuffixMatch[templateBranchToProcess], ""))
+					templateJob.concreteJobForBranch(jobPrefix, branchToProcess, branchToProcess.replaceAll(branchSuffixMatch[templateBranchToProcess], "", jobInFolder))
 				}
 				println "-------> Expected jobs:"
 				expectedJobsPerBranch.each { println "           $it" }
@@ -137,7 +146,7 @@ class JenkinsJobManager {
 		if (!noDelete && jobsToDelete) {
 			println "Deleting deprecated jobs:\n\t${jobsToDelete.join('\n\t')}"
 			jobsToDelete.each { String jobName ->
-				jenkinsApi.deleteJob(jobName)
+				jobInFolder ? jenkinsApi.deleteFolderJob(jobName, jobPrefix) : jenkinsApi.deleteJob(jobName)
 			}
 		}
 	}

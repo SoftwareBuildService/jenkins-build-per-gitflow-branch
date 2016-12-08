@@ -49,6 +49,12 @@ class JenkinsApi {
 		if (prefix) return jobNames.findAll { it.startsWith(prefix) }
 		return jobNames
 	}
+	List<String> getJobNamesInFolder(String folderName) {
+		println "getting project names from " + jenkinsServerUrl + " in folder " + folderName
+		def response = get(path: 'job/${folderName}/api/json')
+		def jobNames = response.data.jobs.name
+		return jobNames
+	}
 
 	String getJobConfig(String jobName) {
 		def response = get(path: "job/${jobName}/config.xml", contentType: TEXT,
@@ -57,20 +63,21 @@ class JenkinsApi {
 	}
 
 	void cloneJobForBranch(String jobPrefix, ConcreteJob missingJob, String createJobInView, String gitUrl, Boolean noFeatureDeploy, String branchModel) {
+		
 		String createJobInViewPath = resolveViewPath(createJobInView)
 		println "-----> createInView after" + createJobInView
-		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy)
+		String missingJobConfig = configForMissingJob(missingJob, gitUrl, noFeatureDeploy, missingJob.folderPath)
 		TemplateJob templateJob = missingJob.templateJob
 
 		//Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
-		post(createJobInViewPath + 'createItem', missingJobConfig, [name: missingJob.jobName, mode: 'copy', from: templateJob.jobName], ContentType.XML)
+		post(missingJob.folderPath + createJobInViewPath + 'createItem', missingJobConfig, [name: missingJob.jobName, mode: 'copy', from: templateJob.jobName], ContentType.XML)
 
-		post('job/' + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
+		post('job/' + missingJob.folderPath + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
 		//Forced disable enable to work around Jenkins' automatic disabling of clones jobs
 		//But only if the original job was enabled
-		post('job/' + missingJob.jobName + '/disable')
+		post('job/' + missingJob.folderPath + missingJob.jobName + '/disable')
 		if (!missingJobConfig.contains("<disabled>true</disabled>")) {
-			post('job/' + missingJob.jobName + '/enable')
+			post('job/' + missingJob.folderPath + missingJob.jobName + '/enable')
 		}
 	}
 
@@ -83,9 +90,9 @@ class JenkinsApi {
 		elements.join();
 	}
 
-	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy) {
+	String configForMissingJob(ConcreteJob missingJob, String gitUrl, Boolean noFeatureDeploy, String jobPath) {
 		TemplateJob templateJob = missingJob.templateJob
-		String config = getJobConfig(templateJob.jobName)
+		String config =  getJobConfig(jobPath + templateJob.jobName)
 		String pconfig = processConfig(config, missingJob.branchName, gitUrl, missingJob.featureName, missingJob.templateJob.jobCategory, noFeatureDeploy)
         return pconfig
 	}
@@ -175,7 +182,7 @@ class JenkinsApi {
 		String templateConfig = getJobConfig(job.templateJob.jobName)
 		if (shouldStartJob(templateConfig)) {
 			println "Starting job ${job.jobName}."
-			post('job/' + job.jobName + '/build')
+			post('job/' + job.folderPath + job.jobName + '/build')
 		}
 	}
 	
@@ -217,6 +224,10 @@ class JenkinsApi {
 	void deleteJob(String jobName) {
 		println "deleting job $jobName"
 		post("job/${jobName}/doDelete")
+	}
+	void deleteFolderJob(String jobName, String jobPrefix) {
+		println "deleting job ${jobName} in folder ${jobPrefix}" 
+		post("job/${jobPrefix}/job/${jobName}/doDelete")
 	}
 
 	protected get(Map map) {

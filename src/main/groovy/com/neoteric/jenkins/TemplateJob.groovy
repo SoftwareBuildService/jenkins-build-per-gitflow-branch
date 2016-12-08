@@ -21,8 +21,16 @@ class TemplateJob {
         }
         return "$baseJobName-$safeBranchName"
     }
+	
+	String addFolderPath(Boolean jobInFolder, String jobPrefix){
+		if (jobInFolder){
+			return "${jobPrefix}/job"
+		} else {
+			return ""
+		}
+	}
     
-    ConcreteJob concreteJobForBranch(String jobPrefix, String branchName, String featureName="") {
-        ConcreteJob concreteJob = new ConcreteJob(templateJob: this, branchName: branchName, jobName: jobNameForBranch(branchName), featureName: featureName )
+    ConcreteJob concreteJobForBranch(String jobPrefix, String branchName, String featureName="", Boolean jobInFolder) {
+        ConcreteJob concreteJob = new ConcreteJob(templateJob: this, branchName: branchName, jobName: jobNameForBranch(branchName), featureName: featureName, folderPath: addFolderPath(jobInFolder, jobPrefix) )
     }
 }
