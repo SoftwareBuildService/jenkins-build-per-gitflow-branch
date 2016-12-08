@@ -109,7 +109,7 @@ class JenkinsJobManager {
 			branchesWithCorrespondingTemplate.each { branchToProcess ->
 				println "-----> Processing branch: $branchToProcess"
 				List<ConcreteJob> expectedJobsPerBranch = templateJobsByBranch[templateBranchToProcess].collect { TemplateJob templateJob ->
-					templateJob.concreteJobForBranch(jobPrefix, branchToProcess, branchToProcess.replaceAll(branchSuffixMatch[templateBranchToProcess], "", jobInFolder))
+					templateJob.concreteJobForBranch(jobPrefix, branchToProcess, branchToProcess.replaceAll(branchSuffixMatch[templateBranchToProcess], ""), jobInFolder)
 				}
 				println "-------> Expected jobs:"
 				expectedJobsPerBranch.each { println "           $it" }
